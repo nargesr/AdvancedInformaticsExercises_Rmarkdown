@@ -1,0 +1,53 @@
+---
+title: Week 2 exercise
+author: Narges Rezaie
+date: Jan, 2020
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+use_python("C:\\Users\\Narges\\Anaconda3\\python.exe")
+reticulate::py_config()
+```
+
+
+# **Week 2**
+
+## create dataframe in R
+```{r}
+library(nycflights13)
+data(flights)
+```
+
+## show data in python
+
+```{python}
+import pandas
+print(type(r.flights))
+print(r.flights)
+```
+
+
+## Load data in R and plot it in python
+
+```{r}
+data(mtcars)
+```
+
+```{python}
+print(r.mtcars.head())
+```
+
+```{python}
+import seaborn as sns
+import matplotlib.pyplot as plt
+g = sns.FacetGrid(r.mtcars, col="cyl")
+g.map(sns.scatterplot,"wt","mpg");
+plt.show()
+```
