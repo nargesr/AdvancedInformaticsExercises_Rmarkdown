@@ -1,0 +1,140 @@
+---
+title: Week 3 exercise
+author: Narges Rezaie
+date: Jan, 2020
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+use_python("C:\\Users\\Narges\\Anaconda3\\python.exe")
+reticulate::py_config()
+```
+
+
+# **Week 3**
+
+## R
+```{r}
+library(printr)
+data(mtcars)
+help(mtcars)
+
+head(mtcars)
+```
+
+```{r}
+aggregate(mpg ~ cyl, data=mtcars, mean)
+```
+
+
+```{r}
+aggregate(mpg ~ cyl + gear, data=mtcars, mean)
+```
+
+```{r}
+library(dplyr)
+results = mtcars %>%
+    group_by(cyl) %>%
+    summarise(mean_mpg = mean(mpg))
+
+results
+```
+
+```{r}
+results = mtcars %>%
+    group_by(cyl, gear) %>%
+    summarise(mean_mpg = mean(mpg))
+
+as.data.frame(results)
+```
+```{r}
+library(dbplyr)
+
+# Create a connection ("con") to a database file:
+con <- DBI::dbConnect(RSQLite::SQLite(), "mtcars.sqlite3")
+# Write our data frame to the database in a table called "mtcars"
+DBI::dbWriteTable(con, "mtcars", mtcars)
+# Disconnect from our database
+DBI::dbDisconnect(con)
+```
+Let’s check that we have a database whose file is >0:
+```{r}
+files = list.files(pattern = "*.sqlite3")
+for (file in files) {
+  print(file.info(file))
+}
+```
+
+
+```{r}
+con <- DBI::dbConnect(RSQLite::SQLite(), "mtcars.sqlite3")
+mtcars2 <- tbl(con, "mtcars")
+g = mtcars2 %>% 
+    group_by(cyl) %>%
+    summarise(mean_mpg=mean(mpg))
+
+g %>% show_query()
+```
+```{r}
+result = g %>% collect()
+as.data.frame(result)
+```
+
+## Python
+
+```{python}
+mtcars = r.mtcars
+print(mtcars.head())
+```
+
+```{python}
+mtcars.groupby(['cyl'])['mpg'].mean()
+```
+```{python}
+mtcars.groupby(['cyl', 'gear'])['mpg'].mean()
+```
+
+```{python}
+import sqlite3 # Built into the Python language!
+con = sqlite3.connect("mtcars_from_pandas.sqlite3")
+# Add our data frame to the mtcars table in the database
+mtcars.to_sql("mtcars", con)
+con.close()
+```
+
+Let’s check that we have a database whose file is >0:
+```{r}
+files = list.files(pattern = "*.sqlite3")
+for (file in files) {
+  print(file.info(file))
+}
+```
+
+```{python}
+import pandas as pd
+
+con = sqlite3.connect("mtcars_from_pandas.sqlite3")
+df = pd.read_sql("select * from mtcars", con)
+print(df.head())
+
+```
+
+
+```{python}
+df = pd.read_sql("select cyl, avg(mpg) from mtcars group by cyl", con)
+print(df.head())
+
+```
+
+```{python}
+df = pd.read_sql("select cyl, gear, avg(mpg) from mtcars group by cyl, gear", con)
+print(df.head())
+
+```
+
